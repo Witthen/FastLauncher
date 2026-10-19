@@ -1,7 +1,7 @@
 # Windows version of restore.sh: re-enable every package listed in a debloat file, restore the
 # stock launcher as home and reset animation scales. Pass the same list you used with disable.ps1.
 #
-# Uso: tools\restore.ps1 -TvHost 192.168.1.50 perfiles\toshiba-emir-shandao\debloat.txt
+# Uso: tools\restore.ps1 -TvHost 192.168.1.50 perfiles\nombre-de-tu-tele\debloat.txt
 param(
     [Parameter(Mandatory = $true, Position = 0)][string]$List,
     [string]$Stock = 'com.google.android.tvlauncher',

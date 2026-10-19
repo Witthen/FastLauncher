@@ -2,7 +2,7 @@
 # Re-enable every package listed in a debloat file, restore the stock launcher as home and reset
 # animation scales. Pass the same list you used with tools/disable.sh.
 #
-# Uso: TV_HOST=192.168.1.50 tools/restore.sh perfiles/toshiba-emir-shandao/debloat.txt
+# Uso: TV_HOST=192.168.1.50 tools/restore.sh perfiles/nombre-de-tu-tele/debloat.txt
 set -euo pipefail
 cd "$(dirname "$0")/.."
 LIST="${1:?usage: restore.sh <debloat list> [stock launcher package]}"

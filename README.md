@@ -17,6 +17,8 @@ No hace falta root.
 
 Si la caja solo dice “Smart TV”, **esto no vale**. El instalador se para si el sistema no encaja.
 
+El APK de cada versión está en [Releases](https://github.com/Witthen/FastLauncher/releases). Es genérico: **tú eliges las apps del dock** en la tele (mantener OK sobre una app).
+
 ---
 
 ## Tres formas de instalarlo
@@ -43,7 +45,7 @@ La IA y el PC **no pueden** pulsar esto por ti.
 5. Atrás → **Opciones para desarrolladores**.
 6. Activa **Depuración USB**.
 7. Si ves **Depuración de red**, **ADB** o **Depuración inalámbrica**, actívala.
-8. Anota la **IP**: Ajustes → **Red** / Wi‑Fi → tu red → **Dirección IP** (ejemplo `192.168.1.26`).
+8. Anota la **IP**: Ajustes → **Red** / Wi‑Fi → tu red → **Dirección IP** (ejemplo `192.168.1.50`).
 9. PC y tele en la **misma Wi‑Fi**. Tele encendida.
 
 Cuando el PC se conecte, la tele pregunta **¿Permitir depuración USB?**
@@ -78,25 +80,22 @@ PowerShell **dentro de esta carpeta** (la que tiene `instalar.ps1`):
 Set-ExecutionPolicy -Scope Process Bypass
 ```
 
-Cualquier Android TV / Google TV:
+Cambia `192.168.1.50` por la IP de **tu** tele:
 
 ```powershell
-.\instalar.ps1 -TvHost 192.168.1.26
+.\instalar.ps1 -TvHost 192.168.1.50
 ```
 
-Toshiba Vestel (shandao), dock YouTube / Play Store / Crunchyroll / Ibérica:
+El dock de fábrica es YouTube y Play Store si están instalados. **Tú eliges el resto en la tele**: mantén **OK** sobre una app → Poner en el dock / quitar / mover.
+
+Si más adelante creas un perfil para tu modelo (`perfiles\_plantilla`):
 
 ```powershell
-.\instalar.ps1 -TvHost 192.168.1.26 -Perfil toshiba-emir-shandao
+.\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
+.\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele -Debloat
 ```
 
-Lo mismo y además desactivar bloat (se puede deshacer):
-
-```powershell
-.\instalar.ps1 -TvHost 192.168.1.26 -Perfil toshiba-emir-shandao -Debloat
-```
-
-Cambia la IP. Al terminar, botón **Inicio** (casita) del mando.
+`-Debloat` solo desactiva paquetes de **tu** lista (se puede deshacer). Al terminar, botón **Inicio** (casita).
 
 El script: crea `tools\venv`, comprueba que es Android TV, compila, instala y deja FastLauncher como inicio.
 
@@ -104,7 +103,7 @@ El script: crea `tools\venv`, comprueba que es Android TV, compila, instala y de
 
 ## C. Manual, comando a comando
 
-Misma carpeta del repo. En Windows usa PowerShell. Cambia `192.168.1.26` por tu IP.
+Misma carpeta del repo. En Windows usa PowerShell. Cambia `192.168.1.50` por tu IP.
 
 ### C1. Programas en el PC
 
@@ -117,7 +116,7 @@ Misma carpeta del repo. En Windows usa PowerShell. Cambia `192.168.1.26` por tu 
 ```powershell
 python -m venv tools\venv
 tools\venv\Scripts\python.exe -m pip install -r tools\requirements.txt
-$env:TV_HOST = "192.168.1.26"
+$env:TV_HOST = "192.168.1.50"
 ```
 
 ### C3. Conectar y comprobar el sistema
@@ -132,15 +131,9 @@ Tiene que salir `OK: Android TV / Google TV`. Si dice INCOMPATIBLE, **para aquí
 
 ### C4. (Opcional) Perfil de tu modelo
 
-Sin perfil, el dock es YouTube + Play Store.
+Sin perfil, el dock de fábrica es YouTube + Play Store. Las otras dos plazas las rellenas tú en la tele (mantener OK).
 
-Con perfil Toshiba:
-
-No copies archivos a mano si vas a usar el script; para ir 100 % a mano, sustituye temporalmente
-`launcher\app\src\main\res\values\config.xml` por el de `perfiles\toshiba-emir-shandao\res\values\config.xml`
-y **restáuralo** después de compilar.
-
-Otras teles: copia `perfiles\_plantilla` → `perfiles\nombre` y edita el `config.xml` (dock y Live TV).
+Para un modelo concreto: copia `perfiles\_plantilla` → `perfiles\nombre-de-tu-tele` y edita el `config.xml` (qué apps quieres de salida en el dock, y el paquete de Live TV si lo sabes). El usuario puede cambiar el dock después sin recompilar.
 
 ### C5. Compilar
 
@@ -160,7 +153,7 @@ Ajusta `JAVA_HOME` si tu Java 17 está en otra carpeta.
 
 ```powershell
 $py = "tools\venv\Scripts\python.exe"
-$env:TV_HOST = "192.168.1.26"
+$env:TV_HOST = "192.168.1.50"
 
 # Play Protect no debe bloquear el APK
 @"
@@ -192,7 +185,7 @@ Si tu inicio original no es `com.google.android.tvlauncher`, cambia esa última 
 Solo desactiva, no borra:
 
 ```powershell
-.\tools\disable.ps1 -TvHost 192.168.1.26 perfiles\toshiba-emir-shandao\debloat.txt
+.\tools\disable.ps1 -TvHost 192.168.1.50 perfiles\nombre-de-tu-tele\debloat.txt
 ```
 
 ### C8. Verlo
@@ -206,7 +199,7 @@ Pulsa **Inicio** en el mando.
 | Qué pulsas | Qué pasa |
 |---|---|
 | Arriba / Abajo | Dock ↔ lista de apps ↔ botones de arriba |
-| Mantener **OK** sobre una app | Dock, ocultar, información |
+| Mantener **OK** sobre una app | **Elegir dock**, ocultar, información |
 | **Atajos** | Liberar RAM, Bluetooth, sonido, reposo |
 | Mantener **Ajustes** | Mostrar apps ocultas |
 
@@ -221,7 +214,7 @@ Pulsa **Inicio** en el mando.
 Listar paquetes:
 
 ```powershell
-$env:TV_HOST = "192.168.1.26"
+$env:TV_HOST = "192.168.1.50"
 tools\venv\Scripts\python.exe -I tools\tv.py "pm list packages"
 ```
 
@@ -232,7 +225,7 @@ Más detalle: [`perfiles/README.md`](perfiles/README.md). Prompt largo para la I
 ## Volver al inicio de fábrica
 
 ```powershell
-.\deshacer.ps1 -TvHost 192.168.1.26 -Perfil toshiba-emir-shandao
+.\deshacer.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
 ```
 
 Reactiva las apps del perfil. No formatea la tele.

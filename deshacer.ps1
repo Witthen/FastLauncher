@@ -1,5 +1,5 @@
 # Vuelve a activar los paquetes de un perfil y restaura el inicio original.
-# Uso:  .\deshacer.ps1 -TvHost 192.168.1.50 -Perfil toshiba-emir-shandao
+# Uso:  .\deshacer.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
 param(
     [Parameter(Mandatory = $true)][string]$TvHost,
     [Parameter(Mandatory = $true)][string]$Perfil

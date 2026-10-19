@@ -2,7 +2,7 @@
 # Disable every package listed in a debloat file on the TV (one package per line, # comments allowed).
 # Packages are disabled for user 0, never uninstalled. Undo with tools/restore.sh <same file>.
 #
-# Uso: TV_HOST=192.168.1.50 tools/disable.sh perfiles/toshiba-emir-shandao/debloat.txt
+# Uso: TV_HOST=192.168.1.50 tools/disable.sh perfiles/nombre-de-tu-tele/debloat.txt
 set -euo pipefail
 cd "$(dirname "$0")/.."
 LIST="${1:?usage: disable.sh <debloat list>}"

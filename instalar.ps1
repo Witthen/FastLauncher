@@ -2,8 +2,8 @@
 # Solo Android TV / Google TV. No sirve para Fire TV, Samsung Tizen, LG webOS, Roku ni moviles.
 #
 #   .\instalar.ps1 -TvHost 192.168.1.50
-#   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil toshiba-emir-shandao
-#   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil toshiba-emir-shandao -Debloat
+#   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
+#   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele -Debloat
 param(
     [Parameter(Mandatory = $true)]
     [string]$TvHost,

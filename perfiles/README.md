@@ -19,7 +19,7 @@ $env:TV_HOST = "192.168.1.xx"
 tools\venv\Scripts\python.exe -I tools\tv.py "pm list packages"
 ```
 
-4. Rellena `config.xml` (dock y Live TV) y, si quieres, `debloat.txt`.
+4. En `config.xml` pon **las apps que quiera el usuario** en el dock (pregúntale; no copies las de otro). Live TV solo si hay sintonizador. `debloat.txt` es opcional.
 5. Instala:
 
 ```powershell

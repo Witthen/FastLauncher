@@ -31,11 +31,11 @@ Hazlo en el dispositivo real, paso a paso. Pregúntame antes de desactivar apps.
 - Guarda lista de paquetes, `getprop` y settings en `backup/` (está en `.gitignore`). No subas seriales a git.
 
 ### Perfil e inicio
-- Si ya hay carpeta en `perfiles/` para este modelo, úsala (`instalar.ps1 -Perfil ...`).
-- Si no, copia `perfiles/_plantilla` a `perfiles/<slug-del-modelo>` y pregunta:
-  - qué 4 apps van al dock y en qué orden
-  - si quiero Live TV / HDMI
-  - si quiero desactivar bloat (`-Debloat`) y cuáles no tocar (YouTube, Play Store, Chromecast, sintonizador, teclado, Bluetooth, mando)
+- No asumas mis apps favoritas. Pregunta siempre:
+  - qué apps van al dock y en qué orden (máximo 4; puedo cambiarlas luego en la tele)
+  - si uso Live TV / HDMI
+  - si quiero desactivar bloat y qué no tocar (Play Store, Chromecast, sintonizador, teclado, Bluetooth, mando, y las apps que yo nombre)
+- Copia `perfiles/_plantilla` a `perfiles/<slug-del-modelo>` y rellena el dock con **lo que yo elija**. Instala con `instalar.ps1 -Perfil ...` o el instalador genérico si aún no hay perfil.
 - Compila e instala FastLauncher (`com.fastlauncher.tv`) como HOME. No instales launchers de pago.
 - Desactiva el inicio original con `pm disable-user --user 0`, **nunca** `pm uninstall` de paquetes de sistema.
 - Un `pm` por invocación de shell (o `--batch` una línea = un comando).

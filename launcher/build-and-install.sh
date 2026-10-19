@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# En Windows usa ../instalar.ps1. Aquí: TV_HOST=192.168.1.50 FASTLAUNCHER_PERFIL=toshiba-emir-shandao ./build-and-install.sh
+# En Windows usa ../instalar.ps1. Aquí: TV_HOST=192.168.1.50 ./build-and-install.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 : "${TV_HOST:?Define TV_HOST, ej. TV_HOST=192.168.1.50 $0}"
