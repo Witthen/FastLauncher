@@ -1,0 +1,33 @@
+# Debloat GENERICO (todas las Android TV / Google TV).
+# Se aplica SIEMPRE al instalar, salvo -SinDebloat.
+# Solo desactiva (pm disable-user). Si el paquete no existe, se ignora.
+#
+# NO se toca: Play Store, Play Services, YouTube, Chromecast, teclado,
+# Bluetooth, mando, sintonizador HDMI / Live TV.
+
+# Inicio original (FastLauncher lo sustituye)
+com.google.android.tvlauncher
+com.google.android.apps.tv.launcherx
+com.google.android.leanbacklauncher
+com.google.android.tvrecommendations
+
+# Asistente de primer arranque y anuncios / telemetria de Google
+com.google.android.tungsten.setupwraith
+com.google.android.feedback
+com.google.android.partnersetup
+com.google.android.backdrop
+
+# Asistente de voz (mucho RAM). Reactiva si lo usas: pm enable com.google.android.katniss
+com.google.android.katniss
+com.google.android.tv.assistant
+
+# Accesibilidad y servicios que casi nadie usa en una tele
+com.google.android.marvin.talkback
+com.android.settings.intelligence
+com.android.printspooler
+com.android.dreams.basic
+
+# Precargas de Google que no son YouTube ni Play Store
+com.google.android.youtube.tvmusic
+com.google.android.videos
+com.google.android.play.games

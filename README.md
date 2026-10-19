@@ -63,7 +63,7 @@ Sirve cualquier asistente **con terminal** en tu PC (Cursor Agent, Claude Code, 
 4. Pon tu **marca/modelo** y la **IP** donde pone `< >`.
 5. Pégalo en el chat del agente y deja que trabaje.
 6. Cuando te avise, **acepta la depuración en la tele**.
-7. Responde si te pregunta el dock (4 apps) o qué no desactivar (YouTube, Chromecast, etc.).
+7. Responde el **dock** (qué apps quieres al frente). El debloat de base se aplica solo; YouTube y Chromecast no se tocan.
 
 La IA debe usar este repo (`instalar.ps1`, `tools/tv.py`, `perfiles/`), no inventar otro launcher.
 Si `--check` dice INCOMPATIBLE, que se detenga.
@@ -86,18 +86,18 @@ Cambia `192.168.1.50` por la IP de **tu** tele:
 .\instalar.ps1 -TvHost 192.168.1.50
 ```
 
+Por defecto **optimiza la tele**: desactiva anuncios, el inicio de Google, el asistente de voz y precargas que no son YouTube ni Play Store. **No borra nada** (se puede deshacer). No toca Chromecast, HDMI, Play Store ni las apps que pongas en el dock.
+
 El dock de fábrica es YouTube y Play Store si están instalados. **Tú eliges el resto en la tele**: mantén **OK** sobre una app → Poner en el dock / quitar / mover.
 
-Si más adelante creas un perfil para tu modelo (`perfiles\_plantilla`):
+Si detecta un fabricante conocido, añade solo extras de ese chipset (telemetría), no una lista de apps tuyas.
 
 ```powershell
+.\instalar.ps1 -TvHost 192.168.1.50 -SinDebloat
 .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
-.\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele -Debloat
 ```
 
-`-Debloat` solo desactiva paquetes de **tu** lista (se puede deshacer). Al terminar, botón **Inicio** (casita).
-
-El script: crea `tools\venv`, comprueba que es Android TV, compila, instala y deja FastLauncher como inicio.
+`-SinDebloat` deja las apps de Google como están (salvo el inicio, que pasa a FastLauncher). Al terminar, botón **Inicio** (casita).
 
 ---
 
@@ -180,11 +180,10 @@ pm disable-user --user 0 com.google.android.tvlauncher
 
 Si tu inicio original no es `com.google.android.tvlauncher`, cambia esa última línea (está en `perfiles\...\perfil.txt` como `lanzador_original`).
 
-### C7. (Opcional) Desactivar bloat
-
-Solo desactiva, no borra:
+### C7. Debloat (el script lo hace solo; a mano:)
 
 ```powershell
+.\tools\disable.ps1 -TvHost 192.168.1.50 perfiles\_base\debloat.txt
 .\tools\disable.ps1 -TvHost 192.168.1.50 perfiles\nombre-de-tu-tele\debloat.txt
 ```
 
@@ -225,10 +224,11 @@ Más detalle: [`perfiles/README.md`](perfiles/README.md). Prompt largo para la I
 ## Volver al inicio de fábrica
 
 ```powershell
+.\deshacer.ps1 -TvHost 192.168.1.50
 .\deshacer.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
 ```
 
-Reactiva las apps del perfil. No formatea la tele.
+Reactiva lo desactivado y el inicio original. No formatea la tele.
 
 ---
 

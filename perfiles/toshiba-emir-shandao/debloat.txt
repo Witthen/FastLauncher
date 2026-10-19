@@ -1,37 +1,8 @@
-# Toshiba Android TV (EMIR / Vestel shandao), Android TV 11
-# Esto SOLO desactiva (pm disable-user). No desinstala. Se revierte con deshacer.ps1
-#
-# NO enumerar: sintonizador HDMI/Live TV (com.mediatek.wwtv.tvcenter),
-# Play Store, Play Services, Chromecast, teclado, Bluetooth, mando.
+# Extras de fabricante Vestel / MediaTek (ademas de perfiles/_base).
+# No incluye apps de usuario. No toca el sintonizador Live TV.
 
-# Inicio de Google TV y anuncios
-com.google.android.tvlauncher
-com.google.android.tvrecommendations
-
-# Telemetría / demo Vestel
 com.vestel.vestelreporter
 com.vestel.tv.speedup
 android.autoinstalls.config.vestel.medusa
-com.google.android.feedback
-com.google.android.partnersetup
 fusion.android.tv.demo
-
-# Asistente de voz y asistente de primer arranque (quita el # si los usas)
-com.google.android.katniss
-com.google.android.tv.assistant
-com.google.android.tungsten.setupwraith
 com.mediatek.wwtv.setupwizard
-
-# Accesibilidad y extras no usados
-com.google.android.marvin.talkback
-com.google.android.tts
-com.android.settings.intelligence
-com.google.android.backdrop
-com.android.printspooler
-com.android.dreams.basic
-
-# Streaming precargado que no uses (quita la línea si lo usas)
-com.google.android.youtube.tvmusic
-com.google.android.videos
-com.google.android.play.games
-com.netflix.ninja

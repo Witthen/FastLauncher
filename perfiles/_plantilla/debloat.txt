@@ -1,13 +1,7 @@
-# Lista de paquetes a DESACTIVAR (no se borran).
-# Una línea = un paquete. Las líneas con # son comentarios.
+# Extras de TU marca (el instalador ya aplica perfiles/_base).
+# Una linea = un paquete. Nunca pongas Play Store, GMS, Chromecast,
+# teclado, Bluetooth, mando ni el sintonizador HDMI/Live TV.
 #
-# Cómo saber los nombres:
-#   $env:TV_HOST = "LA.IP.DE.LA.TELE"
+# Lista paquetes:
+#   $env:TV_HOST = "192.168.1.50"
 #   tools\venv\Scripts\python.exe -I tools\tv.py "pm list packages"
-#
-# NUNCA pongas: Play Store (com.android.vending), Play Services (com.google.android.gms),
-# Chromecast (com.google.android.apps.mediashell), el sintonizador HDMI/Live TV,
-# ni el teclado.
-#
-# Ejemplo:
-# com.google.android.tvrecommendations

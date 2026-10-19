@@ -3,12 +3,12 @@
 #
 #   .\instalar.ps1 -TvHost 192.168.1.50
 #   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
-#   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele -Debloat
+#   .\instalar.ps1 -TvHost 192.168.1.50 -SinDebloat
 param(
     [Parameter(Mandatory = $true)]
     [string]$TvHost,
     [string]$Perfil = '',
-    [switch]$Debloat
+    [switch]$SinDebloat
 )
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = New-Object System.Text.UTF8Encoding $false
@@ -26,13 +26,13 @@ Write-Host "FastLauncher  -  inicio para Android TV / Google TV" -ForegroundColo
 Write-Host "No es compatible con Fire OS, Tizen (Samsung), webOS (LG), Roku ni telefonos." -ForegroundColor Yellow
 Write-Host "IP de la tele: $($env:TV_HOST)"
 
+if ($Perfil -eq '_plantilla' -or $Perfil -eq '_base') { Fail "Usa un perfil de modelo, no _plantilla ni _base." }
 if ($Perfil) {
     $perfilDir = Join-Path $repo "perfiles\$Perfil"
     if (-not (Test-Path $perfilDir)) { Fail "No existe perfiles\$Perfil. Mira perfiles\README.md" }
-    if ($Perfil -eq '_plantilla') { Fail "Copia _plantilla a un nombre nuevo; no instales la plantilla." }
     Write-Host "Perfil: $Perfil"
 } else {
-    Write-Host "Sin perfil: configuracion generica (YouTube + Play Store en el dock)."
+    Write-Host "Perfil: (se detecta al conectar; el dock lo eliges tu en la tele)"
 }
 
 Write-Paso 1 "Python"
@@ -57,6 +57,13 @@ Write-Host "Si en la tele sale Permitir depuracion USB, pulsa ACEPTAR y marca Si
 & $venvPy -I $tvpy --check
 if ($LASTEXITCODE -eq 2) { Fail "Esta tele no es Android TV / Google TV. No instalo nada." }
 if ($LASTEXITCODE -ne 0) { Fail "No hay conexion. Misma Wi-Fi, depuracion activada, IP correcta." }
+if (-not $Perfil) {
+    $probe = & $venvPy -I $tvpy --probe | Out-String
+    if ($probe -match 'shandao|EMIR_Toshiba|(?i)vestel|(?i)manufacturer = Toshiba') {
+        $Perfil = 'toshiba-emir-shandao'
+        Write-Host "Hardware Vestel/MediaTek detectado: extras de fabricante (Live TV, telemetria). El dock lo eliges tu."
+    }
+}
 
 Write-Paso 3 "Java 17 y Android SDK"
 function Find-Jdk17 {
@@ -154,16 +161,19 @@ if ($Perfil -and (Test-Path $perfilFile)) {
     "pm disable-user --user 0 $stock"
 ) | & $venvPy -I $tvpy --batch | Out-Host
 
-if ($Debloat) {
-    Write-Paso 6 "Desactivar bloat del perfil (no se borra nada)"
-    $list = Join-Path $repo "perfiles\$Perfil\debloat.txt"
-    if (-not $Perfil -or -not (Test-Path $list)) { Fail "-Debloat necesita un perfil con debloat.txt" }
-    Write-Host "Solo se desactiva. Para volver atras: .\deshacer.ps1 -TvHost $($env:TV_HOST) -Perfil $Perfil"
-    & (Join-Path $repo 'tools\disable.ps1') -TvHost $env:TV_HOST -List $list
-} else {
+if ($SinDebloat) {
     Write-Host ""
-    Write-Host "No he tocado apps extra. Si quieres desactivar el bloat de un perfil:"
-    Write-Host "  .\instalar.ps1 -TvHost $($env:TV_HOST) -Perfil nombre -Debloat"
+    Write-Host "Sin debloat (-SinDebloat). El inicio original si se desactiva para que mande FastLauncher."
+} else {
+    Write-Paso 6 "Debloat (solo desactivar, no se borra)"
+    Write-Host "Base: anuncios, inicio de Google, asistente de voz, precargas que no son YouTube/Play Store."
+    & (Join-Path $repo 'tools\disable.ps1') -TvHost $env:TV_HOST (Join-Path $repo 'perfiles\_base\debloat.txt')
+    $extra = Join-Path $repo "perfiles\$Perfil\debloat.txt"
+    if ($Perfil -and (Test-Path $extra)) {
+        Write-Host "Extras de fabricante: $Perfil"
+        & (Join-Path $repo 'tools\disable.ps1') -TvHost $env:TV_HOST $extra
+    }
+    Write-Host "Para reactivar: .\deshacer.ps1 -TvHost $($env:TV_HOST)"
 }
 
 Write-Host ""

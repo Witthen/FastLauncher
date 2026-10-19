@@ -1,6 +1,9 @@
 # Perfiles por televisor
 
-Cada carpeta es un modelo de **Android TV / Google TV**. El instalador lee:
+`_base/debloat.txt` se aplica a **todas** las teles (anuncios y extras de Google).
+Cada otra carpeta es un modelo: extras de **fabricante**, no una lista de apps de usuario.
+
+El instalador lee:
 
 | Archivo | Para qué sirve |
 |---|---|

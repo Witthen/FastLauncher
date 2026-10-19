@@ -31,11 +31,11 @@ Hazlo en el dispositivo real, paso a paso. Pregúntame antes de desactivar apps.
 - Guarda lista de paquetes, `getprop` y settings en `backup/` (está en `.gitignore`). No subas seriales a git.
 
 ### Perfil e inicio
-- No asumas mis apps favoritas. Pregunta siempre:
-  - qué apps van al dock y en qué orden (máximo 4; puedo cambiarlas luego en la tele)
-  - si uso Live TV / HDMI
-  - si quiero desactivar bloat y qué no tocar (Play Store, Chromecast, sintonizador, teclado, Bluetooth, mando, y las apps que yo nombre)
-- Copia `perfiles/_plantilla` a `perfiles/<slug-del-modelo>` y rellena el dock con **lo que yo elija**. Instala con `instalar.ps1 -Perfil ...` o el instalador genérico si aún no hay perfil.
+- Aplica **siempre** `perfiles/_base/debloat.txt` (anuncios, inicio de Google, asistente de voz, precargas). No preguntes para eso: es el modo optimizar. Salvo que yo diga `-SinDebloat`.
+- No asumas mis apps. Pregunta el **dock** (máx. 4; luego lo puedo cambiar en la tele) y Live TV/HDMI.
+- No desactives: Play Store, Play Services, YouTube, Chromecast, teclado, Bluetooth, mando, sintonizador HDMI/Live TV, ni las apps que yo nombre para el dock.
+- Si el hardware coincide con un perfil en `perfiles/` (chipset), aplica también **ese** `debloat.txt` (solo fabricante). Si no hay perfil, copia `_plantilla` solo para Live TV / extras de marca, no para inventar un dock.
+- Instala FastLauncher con `instalar.ps1` (ya incluye el debloat de base).
 - Compila e instala FastLauncher (`com.fastlauncher.tv`) como HOME. No instales launchers de pago.
 - Desactiva el inicio original con `pm disable-user --user 0`, **nunca** `pm uninstall` de paquetes de sistema.
 - Un `pm` por invocación de shell (o `--batch` una línea = un comando).
