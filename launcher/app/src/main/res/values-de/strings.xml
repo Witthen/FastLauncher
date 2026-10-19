@@ -39,6 +39,11 @@
     <string name="dock_left">Nach links</string>
     <string name="dock_right">Nach rechts</string>
     <string name="tools">Kurzbefehle</string>
+    <string name="gaming_mode_greeting">Spielemodus</string>
+    <string name="gaming_mode_on">Spielemodus einschalten</string>
+    <string name="gaming_mode_off">Spielemodus ausschalten</string>
+    <string name="gaming_mode_enabled">Spielemodus: Spiele zuerst, RAM freigeben beim Start</string>
+    <string name="gaming_mode_disabled">Spielemodus aus</string>
     <string name="free_ram">RAM freigeben</string>
     <string name="ram_freed">%1$s frei gemacht · jetzt %2$s frei</string>
     <string name="ram_already_free">Nichts extra freizugeben. Offene Apps bleiben.</string>

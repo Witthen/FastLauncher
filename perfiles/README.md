@@ -10,6 +10,7 @@ El instalador lee:
 | `perfil.txt` | Nombre y paquete del inicio original |
 | `res/values/config.xml` | Dock, Live TV, apps ocultas (el instalador lo copia al compilar) |
 | `debloat.txt` | Paquetes a desactivar (opcional, `-Debloat`) |
+| `res/.../config.xml` → `gaming_mode_default` | `1` = arranca en Modo gaming (también `instalar.ps1 -ModoGaming`) |
 
 ## Añadir tu tele
 

@@ -3,6 +3,7 @@ package com.fastlauncher.tv;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
@@ -53,14 +54,16 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         final String pkg;
         final Drawable banner;
         final Drawable icon;
+        final boolean game;
         int ambient;
 
-        Entry(String label, ComponentName component, Drawable banner, Drawable icon) {
+        Entry(String label, ComponentName component, Drawable banner, Drawable icon, boolean game) {
             this.label = label;
             this.component = component;
             this.pkg = component.getPackageName();
             this.banner = banner;
             this.icon = icon;
+            this.game = game;
         }
     }
 
@@ -124,6 +127,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         List<ResolveInfo> found = pm.queryIntentActivities(probe, 0);
         List<Entry> fresh = new ArrayList<>();
         Set<String> seen = new HashSet<>();
+        final boolean gamingMode = GameCatalog.isGamingMode(ctx);
         for (ResolveInfo ri : found) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
@@ -133,7 +137,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             if (banner == null) banner = ri.activityInfo.applicationInfo.loadBanner(pm);
             Drawable icon = ri.loadIcon(pm);
             String label = String.valueOf(ri.loadLabel(pm));
-            fresh.add(new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon));
+            ApplicationInfo ai = ri.activityInfo.applicationInfo;
+            boolean game = GameCatalog.isGame(ai);
+            fresh.add(new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon, game));
         }
         Collections.sort(fresh, (a, b) -> {
             int fa = favourites.indexOf(a.pkg), fb = favourites.indexOf(b.pkg);
@@ -141,6 +147,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                 if (fa < 0) return 1;
                 if (fb < 0) return -1;
                 return Integer.compare(fa, fb);
+            }
+            if (gamingMode && a.game != b.game) {
+                return a.game ? -1 : 1;   // games before other apps
             }
             return a.label.compareToIgnoreCase(b.label);
         });
@@ -197,6 +206,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     private void launch(Entry e) {
+        // Modo gaming: free background RAM before opening a game so low-RAM TVs stutter less.
+        if (e.game && GameCatalog.isGamingMode(ctx)) {
+            IdleReaper.freeNow(ctx);
+        }
         Intent i = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
                 .setComponent(e.component)

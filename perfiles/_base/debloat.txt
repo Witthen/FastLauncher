@@ -27,7 +27,7 @@ com.android.settings.intelligence
 com.android.printspooler
 com.android.dreams.basic
 
-# Precargas de Google que no son YouTube ni Play Store
+# Precargas de Google que no son YouTube ni Play Store.
+# Play Games se deja: Modo gaming / hubs de juegos lo usan.
 com.google.android.youtube.tvmusic
 com.google.android.videos
-com.google.android.play.games

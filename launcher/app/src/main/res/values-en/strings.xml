@@ -39,6 +39,11 @@
     <string name="dock_left">Move left</string>
     <string name="dock_right">Move right</string>
     <string name="tools">Shortcuts</string>
+    <string name="gaming_mode_greeting">Game mode</string>
+    <string name="gaming_mode_on">Turn on game mode</string>
+    <string name="gaming_mode_off">Turn off game mode</string>
+    <string name="gaming_mode_enabled">Game mode: games first, free RAM when you open one</string>
+    <string name="gaming_mode_disabled">Game mode off</string>
     <string name="free_ram">Free RAM</string>
     <string name="ram_freed">Freed %1$s · %2$s free now</string>
     <string name="ram_already_free">Nothing extra to free. Apps you are using stay open.</string>

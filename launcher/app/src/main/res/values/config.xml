@@ -24,4 +24,10 @@
 
     <!-- Minutos en segundo plano antes de cerrar una app de usuario. 0 = no cerrar. -->
     <integer name="idle_kill_minutes">10</integer>
+
+    <!--
+      1 = Arranca en Modo gaming (juegos primero, liberar RAM al abrir un juego).
+      El usuario puede cambiarlo en Atajos. instalar.ps1 -ModoGaming pone 1 al compilar.
+    -->
+    <integer name="gaming_mode_default">0</integer>
 </resources>

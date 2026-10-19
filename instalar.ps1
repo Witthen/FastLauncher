@@ -4,11 +4,13 @@
 #   .\instalar.ps1 -TvHost 192.168.1.50
 #   .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
 #   .\instalar.ps1 -TvHost 192.168.1.50 -SinDebloat
+#   .\instalar.ps1 -TvHost 192.168.1.50 -ModoGaming
 param(
     [Parameter(Mandatory = $true)]
     [string]$TvHost,
     [string]$Perfil = '',
-    [switch]$SinDebloat
+    [switch]$SinDebloat,
+    [switch]$ModoGaming
 )
 $ErrorActionPreference = 'Stop'
 $OutputEncoding = New-Object System.Text.UTF8Encoding $false
@@ -113,6 +115,17 @@ if ($Perfil) {
     Copy-Item $perfilCfg $mainCfg -Force
     Write-Host "Usando config de perfiles\$Perfil"
 }
+if ($ModoGaming) {
+    if (-not (Test-Path $cfgBackup)) { Copy-Item $mainCfg $cfgBackup -Force }
+    $cfgText = Get-Content $mainCfg -Raw -Encoding UTF8
+    if ($cfgText -match 'gaming_mode_default') {
+        $cfgText = [regex]::Replace($cfgText, '(<integer name="gaming_mode_default">)\s*\d+\s*(</integer>)', '${1}1${2}')
+    } else {
+        $cfgText = $cfgText -replace '</resources>', "    <integer name=`"gaming_mode_default`">1</integer>`r`n</resources>"
+    }
+    [System.IO.File]::WriteAllText($mainCfg, $cfgText, (New-Object System.Text.UTF8Encoding $false))
+    Write-Host "Modo gaming: la tele arrancara con juegos primero (Atajos para apagarlo)."
+}
 Set-Location $launcher
 $sdkEsc = $sdk -replace '\\', '\\'
 "sdk.dir=$sdkEsc" | Out-File -Encoding ascii (Join-Path $launcher 'local.properties')
@@ -176,6 +189,14 @@ if ($SinDebloat) {
     Write-Host "Para reactivar: .\deshacer.ps1 -TvHost $($env:TV_HOST)"
 }
 
+if ($ModoGaming) {
+    Write-Host "Activo Play Games si estaba desactivado..."
+    & $venvPy -I $tvpy 'pm enable --user 0 com.google.android.play.games' | Out-Host
+}
+
 Write-Host ""
 Write-Host "Listo. En el mando pulsa el boton INICIO (casita)." -ForegroundColor Green
 Write-Host "Si sigue saliendo el inicio viejo, pulsa INICIO otra vez."
+if ($ModoGaming) {
+    Write-Host "Modo gaming ON: juegos arriba de la lista; Atajos para activar/desactivar." -ForegroundColor Green
+}

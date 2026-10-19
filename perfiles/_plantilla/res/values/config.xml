@@ -12,4 +12,6 @@
     <string name="live_tv_package" translatable="false"></string>
     <integer name="columns">4</integer>
     <integer name="idle_kill_minutes">10</integer>
+    <!-- 1 = Modo gaming al instalar. También: instalar.ps1 -ModoGaming -->
+    <integer name="gaming_mode_default">0</integer>
 </resources>

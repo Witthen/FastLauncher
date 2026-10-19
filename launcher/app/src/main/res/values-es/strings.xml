@@ -39,6 +39,11 @@
     <string name="dock_left">Mover a la izquierda</string>
     <string name="dock_right">Mover a la derecha</string>
     <string name="tools">Atajos</string>
+    <string name="gaming_mode_greeting">Modo gaming</string>
+    <string name="gaming_mode_on">Activar modo gaming</string>
+    <string name="gaming_mode_off">Desactivar modo gaming</string>
+    <string name="gaming_mode_enabled">Modo gaming: juegos primero y RAM libre al abrirlos</string>
+    <string name="gaming_mode_disabled">Modo gaming desactivado</string>
     <string name="free_ram">Liberar RAM</string>
     <string name="ram_freed">Liberados %1$s · ahora %2$s libres</string>
     <string name="ram_already_free">Nada extra que liberar. Las apps que estás usando siguen abiertas.</string>

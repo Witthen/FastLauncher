@@ -372,8 +372,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ambientColor = color;
         float[] hsv = new float[3];
         Color.colorToHSV(color, hsv);
-        hsv[1] *= 0.40f;
-        hsv[2] = Math.min(hsv[2], 0.52f);
+        // Modo gaming: a touch more colour so focused games feel present without neon chrome.
+        boolean gaming = GameCatalog.isGamingMode(this);
+        hsv[1] *= gaming ? 0.52f : 0.40f;
+        hsv[2] = Math.min(hsv[2], gaming ? 0.58f : 0.52f);
         int c = Color.HSVToColor(hsv) & 0x00FFFFFF;
         ambientGlow.setColors(new int[]{0x3A000000 | c, 0x14000000 | c, 0x00000000});
     }
@@ -561,6 +563,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void updateGreeting() {
+        if (GameCatalog.isGamingMode(this)) {
+            greeting.setText(R.string.gaming_mode_greeting);
+            return;
+        }
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int res;
         if (hour < 5) res = R.string.good_night;
@@ -712,6 +718,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         popup.setAnimationStyle(0);
 
         addMenuRow(rows, popup, getString(R.string.free_ram), this::freeRam);
+        boolean gamingOn = GameCatalog.isGamingMode(this);
+        addMenuRow(rows, popup,
+                getString(gamingOn ? R.string.gaming_mode_off : R.string.gaming_mode_on),
+                this::toggleGamingMode);
         if (playingCtrl != null) {
             addMenuRow(rows, popup, getString(R.string.pause_media), () -> {
                 try {
@@ -739,6 +749,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(220)
                 .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
         if (rows.getChildCount() > 0) rows.getChildAt(0).requestFocus();
+    }
+
+    private void toggleGamingMode() {
+        boolean next = !GameCatalog.isGamingMode(this);
+        GameCatalog.setGamingMode(this, next);
+        updateGreeting();
+        adapter.reload();
+        Toast.makeText(this,
+                next ? R.string.gaming_mode_enabled : R.string.gaming_mode_disabled,
+                Toast.LENGTH_LONG).show();
+        grid.post(() -> focusTile(lastFocused));
     }
 
     private void freeRam() {

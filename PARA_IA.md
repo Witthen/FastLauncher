@@ -33,7 +33,8 @@ Hazlo en el dispositivo real, paso a paso. Pregúntame antes de desactivar apps.
 ### Perfil e inicio
 - Aplica **siempre** `perfiles/_base/debloat.txt` (anuncios, inicio de Google, asistente de voz, precargas). No preguntes para eso: es el modo optimizar. Salvo que yo diga `-SinDebloat`.
 - No asumas mis apps. Pregunta el **dock** (máx. 4; luego lo puedo cambiar en la tele) y Live TV/HDMI.
-- No desactives: Play Store, Play Services, YouTube, Chromecast, teclado, Bluetooth, mando, sintonizador HDMI/Live TV, ni las apps que yo nombre para el dock.
+- No desactives: Play Store, Play Services, Play Games, YouTube, Chromecast, teclado, Bluetooth, mando, sintonizador HDMI/Live TV, ni las apps que yo nombre para el dock.
+- Si pido **sistema / inicio gaming** o **modo gaming**, usa `instalar.ps1 ... -ModoGaming` (o `gaming_mode_default=1` en el perfil). No inventes otro launcher ni un OS aparte.
 - Si el hardware coincide con un perfil en `perfiles/` (chipset), aplica también **ese** `debloat.txt` (solo fabricante). Si no hay perfil, copia `_plantilla` solo para Live TV / extras de marca, no para inventar un dock.
 - Instala FastLauncher con `instalar.ps1` (ya incluye el debloat de base).
 - Compila e instala FastLauncher (`com.fastlauncher.tv`) como HOME. No instales launchers de pago.

@@ -1,7 +1,7 @@
 # FastLauncher
 
 Pantalla de inicio **ligera** para **Android TV** y **Google TV**.
-Sin filas de anuncios, dock a tu gusto, atajos (liberar RAM, Bluetooth) y poco consumo.
+Sin filas de anuncios, dock a tu gusto, atajos (liberar RAM, Bluetooth, **modo gaming**) y poco consumo.
 No hace falta root.
 
 ---
@@ -95,9 +95,26 @@ Si detecta un fabricante conocido, añade solo extras de ese chipset (telemetrí
 ```powershell
 .\instalar.ps1 -TvHost 192.168.1.50 -SinDebloat
 .\instalar.ps1 -TvHost 192.168.1.50 -Perfil nombre-de-tu-tele
+.\instalar.ps1 -TvHost 192.168.1.50 -ModoGaming
 ```
 
-`-SinDebloat` deja las apps de Google como están (salvo el inicio, que pasa a FastLauncher). Al terminar, botón **Inicio** (casita).
+`-SinDebloat` deja las apps de Google como están (salvo el inicio, que pasa a FastLauncher).
+`-ModoGaming` deja la tele lista para jugar: juegos primero en la lista, Play Games activo, y al abrir un juego libera RAM. También lo puedes encender/apagar en **Atajos** sin reinstalar. Al terminar, botón **Inicio** (casita).
+
+---
+
+## Modo gaming
+
+Pensado como un **inicio orientado a juegos** (no es otro sistema operativo):
+
+| Qué hace | Detalle |
+|---|---|
+| Orden | Tras el dock, los juegos y hubs (Play Games, GeForce NOW, Luna, Steam Link, etc.) van primero |
+| RAM | Al abrir un juego, libera procesos en segundo plano |
+| Atajos | **Activar / desactivar modo gaming** |
+| Instalación | `.\instalar.ps1 -TvHost IP -ModoGaming` o `gaming_mode_default` en el perfil |
+
+El dock sigue siendo el que tú elijas en la tele.
 
 ---
 
@@ -199,7 +216,7 @@ Pulsa **Inicio** en el mando.
 |---|---|
 | Arriba / Abajo | Dock ↔ lista de apps ↔ botones de arriba |
 | Mantener **OK** sobre una app | **Elegir dock**, ocultar, información |
-| **Atajos** | Liberar RAM, Bluetooth, sonido, reposo |
+| **Atajos** | Liberar RAM, modo gaming, Bluetooth, sonido, reposo |
 | Mantener **Ajustes** | Mostrar apps ocultas |
 
 ---
