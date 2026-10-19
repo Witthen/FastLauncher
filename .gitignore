@@ -1,0 +1,10 @@
+tools/venv/
+tools/adbkey/
+tools/__pycache__/
+launcher/.gradle/
+launcher/build/
+launcher/app/build/
+launcher/local.properties
+# Dumps de la tele (serial, android_id) se quedan en local
+backup/
+.DS_Store

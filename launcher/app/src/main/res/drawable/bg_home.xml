@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quiet cinema-style wash: cool graphite, no bitmap, no blur. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FF05070B" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:centerColor="#FF0B1018"
+                android:endColor="#FF05070B"
+                android:startColor="#FF182030"
+                android:type="linear" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:centerX="0.18"
+                android:centerY="0.10"
+                android:endColor="#0005070B"
+                android:gradientRadius="85%p"
+                android:startColor="#3D2C3A52"
+                android:type="radial" />
+        </shape>
+    </item>
+</layer-list>
