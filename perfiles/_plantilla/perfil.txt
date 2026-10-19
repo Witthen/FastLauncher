@@ -1,0 +1,3 @@
+nombre=Mi televisor Android TV
+sistema=Android TV
+lanzador_original=com.google.android.tvlauncher

@@ -55,8 +55,15 @@ final class IdleReaper {
         if (pkg.equals("com.fastlauncher.tv")) return true;
         if (pkg.startsWith("com.android.")) return true;
         if (pkg.startsWith("com.mediatek.")) return true;
+        if (pkg.startsWith("com.mtk.")) return true;
+        if (pkg.startsWith("com.amlogic.")) return true;
+        if (pkg.startsWith("com.droidlogic.")) return true;
+        if (pkg.startsWith("com.realtek.")) return true;
+        if (pkg.startsWith("com.sony.")) return true;
+        if (pkg.startsWith("com.tcl.")) return true;
         if (pkg.startsWith("com.vestel.")) return true;
         if (pkg.startsWith("com.dolby.")) return true;
+        if (pkg.startsWith("com.google.android.tv.")) return true;
         if (pkg.startsWith("com.google.android.gms")) return true;
         if (pkg.startsWith("com.google.android.gsf")) return true;
         if (pkg.startsWith("com.google.android.ext.")) return true;

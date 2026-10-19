@@ -1,43 +1,14 @@
-# Compila FastLauncher e instálalo como pantalla de inicio.
-# Uso: launcher\build-and-install.ps1 -TvHost 192.168.1.50 [-StockLauncher com.google.android.tvlauncher]
+# Uso interno. Para instalar, desde la raíz del repo:
+#   .\instalar.ps1 -TvHost 192.168.1.50
 param(
     [string]$TvHost = $env:TV_HOST,
-    [string]$StockLauncher = 'com.google.android.tvlauncher'
+    [string]$StockLauncher = 'com.google.android.tvlauncher',
+    [string]$Perfil = $env:FASTLAUNCHER_PERFIL
 )
 $ErrorActionPreference = 'Stop'
-# Pipe plain UTF-8 to native commands; the default here prepends a BOM that corrupts the first command.
 $OutputEncoding = New-Object System.Text.UTF8Encoding $false
-if (-not $TvHost) { throw 'pass -TvHost <tv ip> or set $env:TV_HOST' }
-$env:TV_HOST = $TvHost
-Set-Location $PSScriptRoot
-
-if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\java.exe")) {
-    $jbr = Get-ChildItem 'C:\Program Files\Android' -Directory -ErrorAction SilentlyContinue |
-        ForEach-Object { Join-Path $_.FullName 'jbr' } | Where-Object { Test-Path "$_\bin\java.exe" } | Select-Object -First 1
-    if (-not $jbr) { throw 'Set JAVA_HOME to a JDK 17+ (Android Studio ships one in its jbr folder)' }
-    $env:JAVA_HOME = $jbr
-}
-$sdk = if ($env:ANDROID_HOME) { $env:ANDROID_HOME } else { "$env:LOCALAPPDATA\Android\Sdk" }
-if (-not (Test-Path local.properties)) {
-    "sdk.dir=$($sdk -replace '\\', '\\')" | Out-File -Encoding ascii local.properties
-}
-
-.\gradlew.bat assembleDebug -q --console=plain
-if ($LASTEXITCODE -ne 0) { throw 'Gradle build failed' }
-
-$py = '..\tools\venv\Scripts\python.exe'
-$apk = 'app\build\outputs\apk\debug\app-debug.apk'
-& $py -I ..\tools\b64push.py $apk /data/local/tmp/fastlauncher.apk
-if ($LASTEXITCODE -ne 0) { throw 'APK upload failed' }
-$out = & $py -I ..\tools\tv.py 'pm install -r /data/local/tmp/fastlauncher.apk; rm -f /data/local/tmp/fastlauncher.apk'
-Write-Host $out
-if ("$out" -notmatch 'Success') { throw 'pm install failed; the stock launcher was left untouched' }
-$out = & $py -I ..\tools\tv.py 'cmd package set-home-activity --user 0 com.fastlauncher.tv/.MainActivity'
-Write-Host $out
-if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the stock launcher was left untouched' }
-@(
-    'pm grant com.fastlauncher.tv android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
-    'cmd package set-home-activity --user 0 com.fastlauncher.tv/.MainActivity',
-    "pm disable-user --user 0 $StockLauncher"
-) | & $py -I ..\tools\tv.py --batch
-Write-Host 'Instalado. Pulsa Inicio en el mando.'
+if (-not $TvHost) { throw 'Pasa -TvHost <ip> o usa ..\instalar.ps1' }
+$root = Split-Path -Parent $PSScriptRoot
+$args = @{ TvHost = $TvHost }
+if ($Perfil) { $args['Perfil'] = $Perfil }
+& (Join-Path $root 'instalar.ps1') @args

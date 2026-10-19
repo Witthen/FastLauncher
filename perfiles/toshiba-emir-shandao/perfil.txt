@@ -1,0 +1,3 @@
+nombre=Toshiba Android TV (Vestel / shandao)
+sistema=Android TV 11
+lanzador_original=com.google.android.tvlauncher

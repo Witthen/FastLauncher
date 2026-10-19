@@ -1,6 +1,5 @@
 package com.fastlauncher.tv;
 
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
