@@ -5,4 +5,5 @@ com.vestel.vestelreporter
 com.vestel.tv.speedup
 android.autoinstalls.config.vestel.medusa
 fusion.android.tv.demo
-com.mediatek.wwtv.setupwizard
+# NO desactivar com.mediatek.wwtv.setupwizard: Live TV / HDMI piden
+# content://com.mediatek.wwtv.setupwizard.satellite.provider y si falta, peta.

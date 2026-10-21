@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.media.MediaMetadata;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
@@ -70,6 +70,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static final long MINUTE_MS = 60_000L;
     private static final long STATS_MS = 15_000L;
     private String liveTvPkg;
+    private PopupWindow inputsPopup;
 
     private AppAdapter adapter;
     private RecyclerView grid;
@@ -138,6 +139,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         density = getResources().getDisplayMetrics().density;
         COLUMNS = Math.max(1, getResources().getInteger(R.integer.columns));
         liveTvPkg = getString(R.string.live_tv_package).trim();
+        if (liveTvPkg.isEmpty()) liveTvPkg = detectLiveTvPackage();
 
         root = findViewById(R.id.root);
         glass = findViewById(R.id.glass);
@@ -282,6 +284,32 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public void onBackPressed() {
         // Home screen: Back goes nowhere.
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            int code = event.getKeyCode();
+            if (code == KeyEvent.KEYCODE_TV_INPUT || code == KeyEvent.KEYCODE_AVR_INPUT) {
+                openOemInputs();
+                return true;
+            }
+            if (code == KeyEvent.KEYCODE_TV) {
+                openLiveTv();
+                return true;
+            }
+            int hdmi = hdmiKeyIndex(code);
+            if (hdmi >= 0) {
+                List<TvInputInfo> hdmis = hdmiInputs();
+                if (hdmi < hdmis.size()) {
+                    switchInput(hdmis.get(hdmi).getId());
+                } else {
+                    showInputs();
+                }
+                return true;
+            }
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     // ---- glass highlight -------------------------------------------------------------------------
@@ -640,8 +668,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ((TextView) row.findViewById(R.id.title)).setText(title);
         ((TextView) row.findViewById(R.id.status)).setVisibility(View.GONE);
         row.setOnClickListener(v -> {
-            popup.dismiss();
             action.run();
+            popup.dismiss();
         });
         rows.addView(row);
     }
@@ -697,7 +725,153 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             startActivity(i);
         } catch (ActivityNotFoundException e) {
             Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private boolean tryOpen(Intent i) {
+        return tryOpen(i, Intent.FLAG_ACTIVITY_NEW_TASK);
+    }
+
+    private boolean tryOpen(Intent i, int flags) {
+        i.addFlags(flags);
+        try {
+            startActivity(i);
+            return true;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    /**
+     * MediaTek Live TV only switches HDMI if VIEW has the channel MIME type and a fresh task.
+     * CLEAR_TOP/SINGLE_TOP reused a dead Turnkey activity, so the Home screen never left.
+     */
+    private void switchInput(String inputId) {
+        Uri uri = TvContract.buildChannelUriForPassthroughInput(inputId);
+        int flags = Intent.FLAG_ACTIVITY_NEW_TASK;
+        if (!liveTvPkg.isEmpty()) {
+            Intent named = new Intent(Intent.ACTION_VIEW);
+            named.setDataAndType(uri, "vnd.android.cursor.item/channel");
+            named.setClassName(liveTvPkg, "com.mediatek.wwtv.tvcenter.nav.TurnkeyUiMainActivity");
+            named.addCategory(Intent.CATEGORY_DEFAULT);
+            decorateInput(named, inputId);
+            if (tryOpen(named, flags)) return;
+            Intent pkg = new Intent(Intent.ACTION_VIEW);
+            pkg.setDataAndType(uri, "vnd.android.cursor.item/channel");
+            pkg.setPackage(liveTvPkg);
+            pkg.addCategory(Intent.CATEGORY_DEFAULT);
+            decorateInput(pkg, inputId);
+            if (tryOpen(pkg, flags)) return;
+        }
+        Intent view = new Intent(Intent.ACTION_VIEW);
+        view.setDataAndType(uri, "vnd.android.cursor.item/channel");
+        view.addCategory(Intent.CATEGORY_DEFAULT);
+        decorateInput(view, inputId);
+        if (tryOpen(view, flags)) return;
+        openOemInputs();
+    }
+
+    /** Stock Vestel/MediaTek Entradas overlay (the remote SOURCE button). */
+    private void openOemInputs() {
+        if (!liveTvPkg.isEmpty()) {
+            Intent named = new Intent("com.android.tv.action.VIEW_INPUTS");
+            named.setClassName(liveTvPkg, "com.mediatek.wwtv.tvcenter.nav.inputpanel.InputsPanelActivity");
+            if (tryOpen(named)) return;
+        }
+        Intent action = new Intent("com.android.tv.action.VIEW_INPUTS");
+        if (tryOpen(action)) return;
+        showInputs();
+    }
+
+    private void decorateInput(Intent i, String inputId) {
+        i.putExtra(TvInputInfo.EXTRA_INPUT_ID, inputId);
+        i.putExtra("inputId", inputId);
+        i.putExtra("input_id", inputId);
+        i.putExtra("input", inputId);
+    }
+
+    private void openLiveTv() {
+        if (!liveTvPkg.isEmpty()) {
+            Intent named = new Intent(Intent.ACTION_MAIN);
+            named.setClassName(liveTvPkg, "com.mediatek.wwtv.tvcenter.nav.TurnkeyUiMainActivity");
+            if (tryOpen(named)) return;
+            Intent leanback = getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg);
+            if (leanback != null && tryOpen(leanback)) return;
+        }
+        Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
+    }
+
+    private String detectLiveTvPackage() {
+        String[] prefer = {
+                "com.mediatek.wwtv.tvcenter",
+                "com.google.android.tv",
+                "com.android.tv"
+        };
+        PackageManager pm = getPackageManager();
+        for (String pkg : prefer) {
+            if (pm.getLeanbackLaunchIntentForPackage(pkg) != null
+                    || pm.getLaunchIntentForPackage(pkg) != null) {
+                return pkg;
+            }
+        }
+        return "";
+    }
+
+    private static int hdmiKeyIndex(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_TV_INPUT_HDMI_1: return 0;
+            case KeyEvent.KEYCODE_TV_INPUT_HDMI_2: return 1;
+            case KeyEvent.KEYCODE_TV_INPUT_HDMI_3: return 2;
+            case KeyEvent.KEYCODE_TV_INPUT_HDMI_4: return 3;
+            default: return -1;
+        }
+    }
+
+    private List<TvInputInfo> hdmiInputs() {
+        List<TvInputInfo> hdmis = new ArrayList<>();
+        TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
+        if (tim == null) return hdmis;
+        for (TvInputInfo info : tim.getTvInputList()) {
+            if (isPhysicalHdmi(info)) hdmis.add(info);
+        }
+        Collections.sort(hdmis, (a, b) -> Integer.compare(portOrder(a), portOrder(b)));
+        return hdmis;
+    }
+
+    private static boolean isPhysicalHdmi(TvInputInfo info) {
+        return info.isPassthroughInput()
+                && info.getType() == TvInputInfo.TYPE_HDMI
+                && info.getParentId() == null;
+    }
+
+    private static int portOrder(TvInputInfo info) {
+        String id = info.getId();
+        int hw = id.lastIndexOf("/HW");
+        if (hw >= 0) {
+            int n = 0;
+            boolean any = false;
+            for (int i = hw + 3; i < id.length(); i++) {
+                char c = id.charAt(i);
+                if (c >= '0' && c <= '9') {
+                    n = n * 10 + (c - '0');
+                    any = true;
+                } else break;
+            }
+            if (any) return n;
+        }
+        return 999;
+    }
+
+    private String cecDeviceName(List<TvInputInfo> all, String parentId) {
+        for (TvInputInfo child : all) {
+            if (parentId.equals(child.getParentId())) {
+                CharSequence n = child.loadLabel(this);
+                if (n != null && n.length() > 0) return n.toString().trim();
+            }
+        }
+        return "";
     }
 
     /** Shortcuts a user launcher can actually run: RAM, Bluetooth, sound, screensaver. Reboot is attempted and explained if Android blocks it. */
@@ -794,6 +968,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Dropdown menu under the Inputs pill: HDMI ports (with connection state), AV and Live TV. */
     private void showInputs() {
+        if (inputsPopup != null && inputsPopup.isShowing()) {
+            inputsPopup.dismiss();
+            return;
+        }
         View anchor = findViewById(R.id.btnInputs);
         View panel = getLayoutInflater().inflate(R.layout.popup_inputs, root, false);
         LinearLayout rows = panel.findViewById(R.id.rows);
@@ -805,60 +983,50 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         popup.setOutsideTouchable(true);
         popup.setAnimationStyle(0);
         popup.setElevation(0f);
+        popup.setOnDismissListener(() -> {
+            if (inputsPopup == popup) inputsPopup = null;
+        });
+        inputsPopup = popup;
 
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         boolean sawNonHdmi = false;
-        String tunerId = null;
         if (tim != null) {
             List<TvInputInfo> inputs = new ArrayList<>(tim.getTvInputList());
-            // HDMI ports first in port order, then AV and the rest.
-            Collections.sort(inputs, (a, b) -> {
-                boolean ha = a.getType() == TvInputInfo.TYPE_HDMI, hb = b.getType() == TvInputInfo.TYPE_HDMI;
-                if (ha != hb) return ha ? -1 : 1;
-                return String.valueOf(a.loadLabel(this)).compareToIgnoreCase(String.valueOf(b.loadLabel(this)));
-            });
-            // Some TVs (Sony) report every HDMI port as connected whether or not anything is plugged in,
-            // so drop the HDMI status then. A TV with every port really in use loses it too.
-            int hdmiPorts = 0, hdmiConnected = 0;
-            for (TvInputInfo info : inputs) {
-                if (!info.isPassthroughInput() || info.getType() != TvInputInfo.TYPE_HDMI) continue;
-                hdmiPorts++;
-                if (tim.getInputState(info.getId()) == TvInputManager.INPUT_STATE_CONNECTED) hdmiConnected++;
+            List<TvInputInfo> hdmis = hdmiInputs();
+            int hdmiIndex = 0;
+            for (TvInputInfo info : hdmis) {
+                hdmiIndex++;
+                String cec = cecDeviceName(inputs, info.getId());
+                String label = "HDMI " + hdmiIndex;
+                if (!cec.isEmpty()) label = label + "  " + cec;
+                final String id = info.getId();
+                int state = tim.getInputState(id);
+                addInputRow(rows, popup, R.drawable.ic_input, label, state, () -> switchInput(id));
             }
-            boolean hdmiStateBogus = hdmiPorts > 1 && hdmiConnected == hdmiPorts;
+            Collections.sort(inputs, (a, b) ->
+                    String.valueOf(a.loadLabel(this)).compareToIgnoreCase(String.valueOf(b.loadLabel(this))));
             for (TvInputInfo info : inputs) {
-                if (info.getType() == TvInputInfo.TYPE_TUNER
-                        && (info.getServiceInfo().applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
-                        && (tunerId == null || info.getId().compareTo(tunerId) < 0)) {
-                    tunerId = info.getId();
-                }
-                if (!info.isPassthroughInput()) continue;
+                if (!info.isPassthroughInput() || info.getType() == TvInputInfo.TYPE_HDMI) continue;
                 CharSequence l = info.loadLabel(this);
                 String label = l == null ? info.getId() : l.toString();
-                boolean hdmi = info.getType() == TvInputInfo.TYPE_HDMI;
-                if (hdmi && !label.toUpperCase().contains("HDMI")) label = "HDMI " + label;
                 final String id = info.getId();
-                int state = hdmi && hdmiStateBogus ? -1 : tim.getInputState(id);
-                if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) addSeparator(rows);
-                if (!hdmi) sawNonHdmi = true;
-                addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, label, state,
-                        () -> open(new Intent(Intent.ACTION_VIEW).setDataAndType(
-                                TvContract.buildChannelUriForPassthroughInput(id), "vnd.android.cursor.item/channel")));
+                if (rows.getChildCount() > 0 && !sawNonHdmi) addSeparator(rows);
+                sawNonHdmi = true;
+                addInputRow(rows, popup, R.drawable.ic_av, label, tim.getInputState(id),
+                        () -> switchInput(id));
             }
         }
-        Intent liveTv = liveTvPkg.isEmpty() ? null : getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg);
-        if (liveTv != null && tunerId != null) {
-            liveTv = new Intent(Intent.ACTION_VIEW)
-                    .setDataAndType(TvContract.buildChannelUriForPassthroughInput(tunerId), "vnd.android.cursor.item/channel")
-                    .setPackage(liveTvPkg);
-        }
-        if (liveTv != null) {
+        if (!liveTvPkg.isEmpty()) {
             if (rows.getChildCount() > 0) addSeparator(rows);
-            final Intent liveTvIntent = liveTv;
-            addInputRow(rows, popup, R.drawable.ic_livetv, getString(R.string.live_tv), -1, () -> open(liveTvIntent));
+            addInputRow(rows, popup, R.drawable.ic_livetv, getString(R.string.live_tv), -1, this::openLiveTv);
+            addInputRow(rows, popup, R.drawable.ic_input, getString(R.string.inputs), -1, this::openOemInputs);
         }
         if (rows.getChildCount() == 0) {
-            Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();
+            if (!liveTvPkg.isEmpty()) {
+                openLiveTv();
+            } else {
+                Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();
+            }
             return;
         }
 
@@ -905,8 +1073,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             dot.setVisibility(View.GONE);
         }
         row.setOnClickListener(v -> {
-            popup.dismiss();
             action.run();
+            popup.dismiss();
         });
         rows.addView(row);
     }
